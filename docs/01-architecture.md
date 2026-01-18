@@ -5,7 +5,7 @@
 
 This document outlines a secure, compliant, and scalable architecture for tokenizing Real-World Assets (RWAs) including real estate, private credit, and investment funds. The design prioritizes **on-chain compliance enforcement**, **regulatory readiness**, and **operational security** while maintaining blockchain's transparency and efficiency benefits.
 
-[RWA Platform Architecture Design](../diagrams/architecture.png)
+<img src="../diagrams/architecture.png" alt="RWA Platform Architecture Design" width="100%">
 
 ### Core Design Principles
 1. **Compliance First**: Regulatory requirements embedded in smart contracts
