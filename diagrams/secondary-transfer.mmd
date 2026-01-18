@@ -1,0 +1,51 @@
+sequenceDiagram
+    participant S as Seller<br/>(Investor A)
+    participant B as Buyer<br/>(Investor B)
+    participant FE as Trading Portal
+    participant P as Platform Backend
+    participant C as Compliance Module
+    participant T as RWA Token Contract
+    
+    Note over S,T: Pre-conditions Met:<br/>Both investors allowlisted,<br/>jurisdictions compatible
+    
+    S->>FE: List 50 tokens for sale<br/>@ $110 each ($5,500 total)
+    FE->>P: createListing(seller, 50, 110)
+    P->>P: Validate seller balance ≥ 50
+    
+    B->>FE: Browse listings,<br/>select seller's offer
+    FE->>P: initiateTransfer(seller, buyer, 50)
+    
+    Note over S,T: Step 1: Pre-flight Compliance Check
+    P->>C: preCheckTransfer(seller, buyer, 50)
+    C->>C: Check 1: Both allowlisted? ✅
+    C->>C: Check 2: Jurisdictions compatible? ✅
+    C->>C: Check 3: Buyer accredited for asset? ✅
+    C->>C: Check 4: Neither address frozen? ✅
+    C-->>P: Pre-check passed
+    
+    Note over S,T: Step 2: Buyer Payment Preparation
+    P-->>FE: Pre-check passed, proceed
+    FE->>B: Request token approval<br/>for atomic swap
+    B->>T: approve(token, 50)<br/>// Allow contract to transfer tokens
+    
+    Note over S,T: Step 3: Execute Atomic Swap
+    B->>T: transferFromWithSwap(<br/>  seller, buyer, 50, 5500<br/>)
+    
+    T->>C: validateTransfer(seller, buyer, 50)
+    C->>C: Real-time validation
+    C-->>T: Transfer approved
+    
+    Note over S,T: Step 4: Token Transfer
+    T->>T: _transfer(seller, buyer, 50)
+    
+    Note over S,T: Step 5: Payment Transfer (Atomic)
+    T->>B: transferUSDCFrom(buyer, seller, 5500)
+    
+    Note over S,T: Step 6: Event Emission
+    T->>P: emit TransferWithCompliance(<br/>  seller, buyer, 50, checkId<br/>)
+    
+    Note over S,T: Step 7: Notification & Update
+    P->>P: Update off-chain records
+    P->>S: Email: Sale completed<br/>5,500 USDC received
+    P->>B: Email: Purchase completed<br/>50 tokens received
+    P->>FE: Update UI: balances, activity feed

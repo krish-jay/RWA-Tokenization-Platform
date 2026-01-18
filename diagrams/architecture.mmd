@@ -1,0 +1,110 @@
+graph TB
+    subgraph "Client Layer"
+        A1[Investor Portal<br/>React/TypeScript]
+        A2[Issuer Dashboard<br/>React/TypeScript]
+        A3[Admin Dashboard<br/>Internal]
+    end
+
+    subgraph "Platform Backend<br/>Node.js + PostgreSQL"
+        B1[API Gateway<br/>Auth + Rate Limiting]
+        
+        subgraph "Core Services"
+            B2[KYC/AML Service]
+            B3[Asset Management Service]
+            B4[Compliance Engine]
+            B5[Payment Processor]
+            B6[Event Indexer]
+            B7[Reporting Service]
+        end
+        
+        subgraph "Data Layer"
+            B8[(PostgreSQL<br/>Off-chain Data)]
+            B9[Redis Cache]
+        end
+    end
+
+    subgraph "Blockchain Layer<br/>Ethereum"
+        C1[Smart Contract Suite]
+        
+        subgraph "Contracts"
+            C2[RWA Token<br/>ERC-20 with Hooks]
+            C3[Compliance Module]
+            C4[Issuance Module]
+            C5[Corporate Actions]
+            C6[Registry]
+            C7[Proxy Admin<br/>3-of-5 Multisig]
+        end
+        
+        C8[The Graph<br/>Subgraph Indexing]
+    end
+
+    subgraph "External Services"
+        D1[KYC Providers<br/>Sumsub, Onfido]
+        D2[MPC Custody<br/>Fireblocks, Copper]
+        D3[Oracles<br/>Chainlink, Pyth]
+        D4[Document Storage<br/>IPFS + AWS S3]
+        D5[Property Management<br/>Yardi, AppFolio]
+    end
+
+    %% Connections
+    A1 -->|HTTPS/WebSocket| B1
+    A2 -->|HTTPS/WebSocket| B1
+    A3 -->|HTTPS/WebSocket| B1
+    
+    B1 --> B2
+    B1 --> B3
+    B1 --> B4
+    B1 --> B5
+    B1 --> B6
+    B1 --> B7
+    
+    B2 -->|API| D1
+    B3 -->|API| D5
+    B5 -->|API| D2
+    B6 -->|Web3| C1
+    
+    B2 --> B8
+    B3 --> B8
+    B4 --> B8
+    B5 --> B8
+    B6 --> B8
+    B7 --> B8
+    
+    B8 --> B9
+    
+    C1 -->|Events| C8
+    C8 -->|GraphQL| B6
+    
+    B4 -->|Compliance Rules| C3
+    B3 -->|Asset Config| C2
+    B5 -->|Payment Settlement| C4
+    
+    C2 -->|Transfer Hooks| C3
+    C2 -->|Mint/Burn| C4
+    C2 -->|Snapshot| C5
+    
+    C7 -->|Upgrades| C2
+    C7 -->|Upgrades| C3
+    C7 -->|Upgrades| C4
+    C7 -->|Upgrades| C5
+    C7 -->|Upgrades| C6
+    
+    C4 -->|Escrow| D2
+    C5 -->|Distribution| D2
+    
+    C2 -->|Price Feeds| D3
+    C5 -->|NAV Updates| D3
+    
+    B3 -->|Document Storage| D4
+    B2 -->|KYC Docs| D4
+    
+    style C2 fill:#e1f5fe
+    style C3 fill:#f3e5f5
+    style C4 fill:#e8f5e8
+    style C5 fill:#fff3e0
+    style C7 fill:#ffebee
+    
+    style D1 fill:#f1f8e9
+    style D2 fill:#fff3e0
+    style D3 fill:#e8eaf6
+    style D4 fill:#fce4ec

@@ -1,0 +1,47 @@
+sequenceDiagram
+    participant I as Investor<br/>(Token Holder)
+    participant P as Platform Backend
+    participant O as Valuation Oracle<br/>(Chainlink)
+    participant T as RWA Token
+    participant R as Redemption Module
+    participant AM as Asset Manager<br/>(Issuer)
+    
+    Note over I,AM: Trigger: Asset sold / Maturity reached
+    
+    P->>O: Get final valuation
+    O-->>P: Sale proceeds: $15,000,000
+    
+    P->>T: totalSupply()
+    T-->>P: 100,000 tokens outstanding
+    
+    P->>P: Calculate: $15M ÷ 100K = $150 per token
+    P->>R: initiateRedemption(token, 150)
+    
+    AM->>R: transferUSDC(15000000)
+    R->>P: Redemption funded confirmation
+    
+    Note over I,AM: Redemption Window Opens (60 days)
+    P->>I: Notification: Redemption available<br/>@ $150 per token
+    
+    I->>T: approve(R, tokenBalance)
+    I->>R: redeemTokens(tokenBalance)
+    
+    R->>T: balanceOf(Investor)
+    T-->>R: 1,000 tokens
+    
+    R->>R: Calculate: 1,000 × 150 = 150,000 USDC
+    
+    R->>T: burnFrom(Investor, 1000)
+    T-->>R: Tokens burned successfully
+    
+    R->>I: transferUSDC(150000)
+    
+    R->>P: RedemptionProcessed event
+    
+    Note over I,AM: Post-Redemption Window (Day 61)
+    P->>R: getRemainingTokens()
+    R-->>P: 5,000 tokens unclaimed
+    
+    P->>AM: Options for unclaimed tokens:<br/>1. Extend window<br/>2. Burn remaining<br/>3. Escheat to regulator
+    
+    P->>P: Generate final reports:<br/>- Tax statements (Form 1099)<br/>- Investor distribution report<br/>- Audit trail documentation

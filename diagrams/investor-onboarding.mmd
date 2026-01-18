@@ -1,0 +1,59 @@
+sequenceDiagram
+    participant Inv as Investor
+    participant FE as Investor Portal<br/>(Frontend)
+    participant P as Platform Backend
+    participant K as KYC Provider<br/>(Sumsub)
+    participant C as Compliance Module
+    participant T as RWA Token
+    participant E as Escrow Contract
+    participant Iss as Issuer Treasury
+
+    Note over Inv,Iss: Step 1: Account Registration
+    Inv->>FE: Create account<br/>(email, password, wallet connect)
+    FE->>P: registerInvestor(wallet, email)
+    P-->>FE: Send KYC verification link
+    
+    Note over Inv,Iss: Step 2: KYC & Accreditation
+    Inv->>K: Complete identity verification<br/>(photo ID, facial recognition)
+    Inv->>K: Upload accreditation proof<br/>(tax returns, financial statements)
+    K-->>P: Verification result:<br/>ACCREDITED, US resident
+    P->>C: addToAllowlist(investor, 840, 2)<br/>// 840=US, 2=Accredited
+    C-->>P: Allowlist updated
+    
+    Note over Inv,Iss: Step 3: Browse & Select
+    P-->>FE: Investor verified & allowlisted
+    Inv->>FE: Browse available offerings
+    FE->>P: getOfferings()
+    P-->>FE: List assets with details<br/>(NYC Tower: $10M, 100K tokens @ $100)
+    Inv->>FE: Select NYC Tower,<br/>request 100 tokens ($10K)
+    
+    Note over Inv,Iss: Step 4: Subscription Request
+    FE->>P: createSubscription(token, 100)
+    P->>P: Validate: investor allowlisted?<br/>jurisdiction OK? limits OK?
+    P-->>FE: Subscription pending issuer approval
+    
+    Note over Inv,Iss: Step 5: Issuer Approval
+    P->>Iss: Notification: New subscription request
+    Iss->>P: approveSubscription(investor, true)
+    P->>Inv: Email: Subscription approved
+    
+    Note over Inv,Iss: Step 6: Payment Processing
+    Inv->>FE: Initiate payment
+    FE->>Inv: Request USDC approval to escrow
+    Inv->>E: approve(escrow, 10000 USDC)
+    Inv->>E: transferUSDC(10000)
+    E->>P: FundsReceived event
+    
+    Note over Inv,Iss: Step 7: Token Issuance
+    P->>T: verifyAndMint(investor, 100)
+    T->>C: checkTransfer(zeroAddress, investor, 100)
+    C->>C: Check allowlist, jurisdiction,<br/>investor type, limits
+    C-->>T: Transfer approved
+    T->>T: _mint(investor, 100)
+    T->>P: Transfer event emitted
+    
+    Note over Inv,Iss: Step 8: Settlement & Confirmation
+    P->>E: releaseToIssuer()
+    E->>Iss: transferUSDC(10000)
+    P->>Inv: Email confirmation +<br/>dashboard update
+    P->>Inv: Token receipt +<br/>tax documentation

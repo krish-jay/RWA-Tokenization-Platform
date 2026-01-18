@@ -1,0 +1,35 @@
+sequenceDiagram
+    participant I as Issuer<br/>(Real Estate Co.)
+    participant P as Platform Backend
+    participant K as KYC Provider<br/>(Sumsub)
+    participant DD as Due Diligence<br/>Services
+    participant L as Legal Services
+    participant BC as Ethereum<br/>Blockchain
+    participant C as Compliance<br/>Module
+
+    Note over I,C: Phase 1: Issuer Onboarding
+    I->>P: Submit issuer application<br/>(company details, docs)
+    P->>K: Initiate corporate KYC/AML
+    K-->>P: Corporate verification passed
+    
+    Note over I,C: Phase 2: Asset Due Diligence
+    I->>P: Upload property documents<br/>(title deed, appraisal, insurance)
+    P->>DD: Request property appraisal
+    DD-->>P: Appraisal report: $10M value
+    P->>L: Initiate SPV formation
+    L-->>P: SPV LLC established<br/>(NewCo LLC)
+    
+    Note over I,C: Phase 3: Smart Contract Deployment
+    P->>BC: Deploy RWA Token Proxy
+    BC-->>P: Token contract: 0x1234...
+    P->>BC: Deploy Compliance Module
+    P->>C: Configure compliance rules<br/>(US only, accredited investors)
+    
+    Note over I,C: Phase 4: Token Initialization
+    P->>BC: initializeToken(<br/>  name: "NYC Commercial Tower",<br/>  symbol: "NYCT",<br/>  maxSupply: 100000<br/>)
+    P->>BC: Set issuance parameters<br/>(price: $100, period: 30 days)
+    
+    Note over I,C: Phase 5: Issuer Setup Complete
+    P->>I: Asset tokenization complete!<br/>Dashboard access granted
+    P->>BC: Mint initial allocation<br/>to issuer (for testing)
+    P->>P: Schedule subscription period<br/>(starts: 2024-03-01)

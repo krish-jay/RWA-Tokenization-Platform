@@ -1,0 +1,49 @@
+sequenceDiagram
+    participant AM as Asset Manager<br/>(Issuer)
+    participant P as Platform Backend
+    participant O as NAV Oracle<br/>(Chainlink)
+    participant T as RWA Token
+    participant D as Dividend Module
+    participant IA as Investor A<br/>(1,000 tokens)
+    participant IB as Investor B<br/>(500 tokens)
+    
+    Note over AM,IB: Phase 1: Dividend Declaration
+    AM->>P: Initiate dividend distribution
+    P->>O: Get current NAV/rental income
+    O-->>P: Rental income: $500,000
+    
+    P->>T: Take snapshot at block X
+    T-->>P: Total supply: 100,000 tokens
+    
+    P->>P: Calculate: $500,000 ÷ 100,000 = $5 per token
+    P->>D: declareDividend(<br/>  token, 500000, blockX<br/>)
+    D->>P: Dividend declared<br/>Claim period: 30 days
+    
+    Note over AM,IB: Phase 2: Fund Dividend Pool
+    AM->>D: transferUSDC(500000)
+    D->>P: Funds received confirmation
+    
+    Note over AM,IB: Phase 3: Investor Notification
+    P->>IA: Notification: Dividend available<br/>$5 per token × 1,000 = $5,000
+    P->>IB: Notification: Dividend available<br/>$5 per token × 500 = $2,500
+    
+    Note over AM,IB: Phase 4: Investor A Claims
+    IA->>D: claimDividend()
+    D->>T: getBalanceAt(InvestorA, blockX)
+    T-->>D: Balance at snapshot: 1,000 tokens
+    D->>D: Calculate: 1,000 × $5 = $5,000
+    D->>IA: transferUSDC(5000)
+    D->>P: DividendClaimed event
+    
+    Note over AM,IB: Phase 5: Investor B Claims
+    IB->>D: claimDividend()
+    D->>T: getBalanceAt(InvestorB, blockX)
+    T-->>D: Balance at snapshot: 500 tokens
+    D->>D: Calculate: 500 × $5 = $2,500
+    D->>IB: transferUSDC(2500)
+    
+    Note over AM,IB: Phase 6: Completion & Reporting
+    P->>D: getUnclaimedAmount()<br/>after 30 days
+    D-->>P: $10,000 unclaimed<br/>(2,000 tokens inactive)
+    P->>AM: Unclaimed funds report<br/>Options: reclaim or roll over
+    P->>P: Generate distribution report<br/>for tax/regulatory purposes
