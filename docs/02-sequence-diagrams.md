@@ -2,20 +2,20 @@
 
 ## 1. Asset Issuance Flow
 
-[Asset Issuance Flow](../diagrams/asset-issuance.png)
+<img src="../diagrams/asset-issuance.png" alt="Asset Issuance Flow" width="100%">
 
 ## 2. Investor Onboarding & Primary Purchase
 
-[Investor Onboarding & Primary Purchase](../diagrams/investor-onboarding.png)
+<img src="../diagrams/investor-onboarding.png" alt="Investor Onboarding & Primary Purchase" width="100%">
 
 ## 3. Secondary Transfer with Compliance
 
-[Secondary Transfer with Compliance](../diagrams/secondary-transfer.png)
+<img src="../diagrams/secondary-transfer.png" alt="Secondary Transfer with Compliance" width="100%">
 
 ## 4. Dividend Distribution
 
-[Dividend Distribution](../diagrams/dividend-distribution.png)
+<img src="../diagrams/dividend-distribution.png" alt="Dividend Distribution" width="100%">
 
 ## 5. Redemption Flow
 
-[Redemption Flow](../diagrams/redemption-flow.png)
+<img src="../diagrams/redemption-flow.png" alt="Redemption Flow" width="100%">
